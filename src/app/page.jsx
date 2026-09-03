@@ -19,6 +19,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchMusic, setSearchMusic] = useState('');
+  const [api, setApi] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleSearch = (e) => {
     const input = e.target.value;
@@ -60,6 +62,22 @@ export default function Home() {
   useEffect(() => {
     getSongs();
   }, []);
+
+  useEffect(() => {
+    if (!api || !selectedSong) return;
+    const idx = filteredSongs.findIndex((song) => song.id === selectedSong.id);
+    if (idx !== -1) {
+      api.scrollTo(idx);
+    }
+  }, [selectedSong, api]);
+
+  useEffect(() => {
+    if (!api) return;
+    const onSelect = () => setCurrentIndex(api.selectedScrollSnap());
+    api.on('select', onSelect);
+    onSelect();
+    return () => api.off('select', onSelect);
+  }, [api]);
 
   const index = songs.findIndex((song) => song.id === selectedSong?.id);
 
@@ -105,13 +123,19 @@ export default function Home() {
 
       <div className='pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl' />
 
-      <div className='relative mx-auto w-full max-w-6xl px-12 py-3'>
+      <div className='relative mx-auto w-full max-w-6xl px-4 sm:px-8 py-3'>
         {loading ? (
           <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4'>
             {Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={index}
-                className='rounded-xl border border-white/10 bg-white/[0.06] p-3 backdrop-blur-xl'
+                className={`w-full max-w-[240px] mx-auto rounded-xl border border-white/10 bg-white/[0.06] p-3 backdrop-blur-xl ${
+                  index === 0
+                    ? ''
+                    : index === 1
+                      ? 'hidden sm:block'
+                      : 'hidden lg:block'
+                }`}
               >
                 <Skeleton className='aspect-square w-full rounded-xl bg-white/10' />
 
@@ -134,32 +158,52 @@ export default function Home() {
             </p>
           </div>
         ) : (
-          <Carousel
-            opts={{
-              align: 'start',
-              loop: false,
-            }}
-            className='w-full'
-          >
-            <CarouselContent className='ml-0'>
-              {filteredSongs.map((song) => (
-                <CarouselItem
+          <>
+            <Carousel
+              opts={{
+                align: 'start',
+                loop: false,
+              }}
+              setApi={setApi}
+              className='w-full'
+            >
+              <div className='flex items-center gap-2'>
+                <CarouselPrevious className='hidden min-[376px]:flex !static !top-auto !translate-y-0 size-9 sm:size-12 shrink-0 border-white/10 bg-white/[0.08] text-white backdrop-blur-md hover:bg-white/[0.16] hover:text-white' />
+
+                <div className='min-w-0 flex-1'>
+                  <CarouselContent className='ml-0'>
+                    {filteredSongs.map((song) => (
+                      <CarouselItem
+                        key={song.id}
+                        className='basis-full px-3 sm:basis-1/2 lg:basis-1/4'
+                      >
+                        <SongCard
+                          song={song}
+                          selected={selectedSong?.id === song.id}
+                          onSelect={() => setSelectedSong(song)}
+                        />
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                </div>
+
+                <CarouselNext className='hidden min-[376px]:flex !static !top-auto !translate-y-0 size-9 sm:size-12 shrink-0 border-white/10 bg-white/[0.08] text-white backdrop-blur-md hover:bg-white/[0.16] hover:text-white' />
+              </div>
+            </Carousel>
+
+            <div className='flex min-[376px]:hidden justify-center gap-1.5 mt-3'>
+              {filteredSongs.map((song, i) => (
+                <button
                   key={song.id}
-                  className='basis-full px-3 sm:basis-1/2 lg:basis-1/4'
-                >
-                  <SongCard
-                    song={song}
-                    selected={selectedSong?.id === song.id}
-                    onSelect={() => setSelectedSong(song)}
-                  />
-                </CarouselItem>
+                  onClick={() => api?.scrollTo(i)}
+                  aria-label={`Go to song ${i + 1}`}
+                  className={`h-1.5 rounded-full transition-all ${
+                    i === currentIndex ? 'w-4 bg-blue-400' : 'w-1.5 bg-white/25'
+                  }`}
+                />
               ))}
-            </CarouselContent>
-
-            <CarouselPrevious className='-left-14 size-12 border-white/10 bg-white/[0.08] text-white backdrop-blur-md hover:bg-white/[0.16] hover:text-white' />
-
-            <CarouselNext className='-right-14 size-12 border-white/10 bg-white/[0.08] text-white backdrop-blur-md hover:bg-white/[0.16] hover:text-white' />
-          </Carousel>
+            </div>
+          </>
         )}
       </div>
       <Audioplayer song={selectedSong} onNext={nextSong} onPrev={prevSong} />
