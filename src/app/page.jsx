@@ -21,6 +21,7 @@ export default function Home() {
   const [searchMusic, setSearchMusic] = useState('');
   const [api, setApi] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [shuffle, setShuffle] = useState(false);
 
   const handleSearch = (e) => {
     const input = e.target.value;
@@ -82,6 +83,21 @@ export default function Home() {
   const index = songs.findIndex((song) => song.id === selectedSong?.id);
 
   const nextSong = () => {
+    if (songs.length === 0) return;
+
+    if (shuffle) {
+      let randomIndex;
+      if (songs.length === 1) {
+        randomIndex = 0;
+      } else {
+        do {
+          randomIndex = Math.floor(Math.random() * songs.length);
+        } while (songs[randomIndex].id === selectedSong?.id);
+      }
+      setSelectedSong(songs[randomIndex]);
+      return;
+    }
+
     if (selectedSong === null) {
       setSelectedSong(songs[0]);
     } else {
@@ -113,7 +129,7 @@ export default function Home() {
   });
 
   return (
-    <div className='relative min-h-screen w-full overflow-hidden bg-[#050816] pt-50 text-white'>
+    <div className='relative min-h-screen w-full overflow-hidden bg-[#050816] pt-50 lg:pt-60 text-white'>
       <SearchBar
         onSearch={handleSearch}
         clearSearch={handleClear}
@@ -206,7 +222,13 @@ export default function Home() {
           </>
         )}
       </div>
-      <Audioplayer song={selectedSong} onNext={nextSong} onPrev={prevSong} />
+      <Audioplayer
+        song={selectedSong}
+        onNext={nextSong}
+        onPrev={prevSong}
+        shuffle={shuffle}
+        onToggleShuffle={() => setShuffle((prev) => !prev)}
+      />
     </div>
   );
 }
