@@ -80,53 +80,54 @@ export default function Home() {
     return () => api.off('select', onSelect);
   }, [api]);
 
-  const index = songs.findIndex((song) => song.id === selectedSong?.id);
-
-  const nextSong = () => {
-    if (songs.length === 0) return;
-
-    if (shuffle) {
-      let randomIndex;
-      if (songs.length === 1) {
-        randomIndex = 0;
-      } else {
-        do {
-          randomIndex = Math.floor(Math.random() * songs.length);
-        } while (songs[randomIndex].id === selectedSong?.id);
-      }
-      setSelectedSong(songs[randomIndex]);
-      return;
-    }
-
-    if (selectedSong === null) {
-      setSelectedSong(songs[0]);
-    } else {
-      if (index === songs.length - 1) {
-        setSelectedSong(songs[0]);
-      } else {
-        setSelectedSong(songs[index + 1]);
-      }
-    }
-  };
-
-  const prevSong = () => {
-    if (selectedSong === null) {
-      setSelectedSong(songs[songs.length - 1]);
-    } else {
-      if (index === 0) {
-        setSelectedSong(songs[songs.length - 1]);
-      } else {
-        setSelectedSong(songs[index - 1]);
-      }
-    }
-  };
-
   const filteredSongs = songs.filter((song) => {
     return (
       song.title.toLowerCase().includes(searchMusic.toLowerCase()) ||
       song.artist.toLowerCase().includes(searchMusic.toLowerCase())
     );
   });
+  const index = filteredSongs.findIndex((song) => song.id === selectedSong?.id);
+
+  const nextSong = () => {
+    if (filteredSongs.length === 0) return;
+
+    if (shuffle) {
+      let randomIndex;
+      if (filteredSongs.length === 1) {
+        randomIndex = 0;
+      } else {
+        do {
+          randomIndex = Math.floor(Math.random() * filteredSongs.length);
+        } while (filteredSongs[randomIndex].id === selectedSong?.id);
+      }
+      setSelectedSong(filteredSongs[randomIndex]);
+      return;
+    }
+
+    if (selectedSong === null || index === -1) {
+      setSelectedSong(filteredSongs[0]);
+    } else {
+      if (index === filteredSongs.length - 1) {
+        setSelectedSong(filteredSongs[0]);
+      } else {
+        setSelectedSong(filteredSongs[index + 1]);
+      }
+    }
+  };
+
+  const prevSong = () => {
+    if (filteredSongs.length === 0) return;
+
+    if (selectedSong === null || index === -1) {
+      setSelectedSong(filteredSongs[filteredSongs.length - 1]);
+    } else {
+      if (index === 0) {
+        setSelectedSong(filteredSongs[filteredSongs.length - 1]);
+      } else {
+        setSelectedSong(filteredSongs[index - 1]);
+      }
+    }
+  };
 
   return (
     <div className='relative min-h-screen w-full overflow-hidden bg-[#050816] pt-50 lg:pt-60 text-white'>
