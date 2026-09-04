@@ -2,7 +2,7 @@
 
 A responsive music player web app built with Next.js, featuring a swipeable carousel, live search, shuffle/repeat modes, and a persistent bottom player — backed by Supabase for data and file storage.
 
-**🔗 Live Demo:**(https://music-player-alpha-lilac.vercel.app/) <!-- replace with your actual Vercel URL -->
+🔗 Live Demo:** [music-player-alpha-lilac.vercel.app](https://music-player-alpha-lilac.vercel.app/)
 
 ---
 
@@ -106,3 +106,12 @@ This project was originally built with a self-hosted [Strapi](https://strapi.io/
 ## 📄 License
 
 This project is open source and available for learning purposes.
+
+## 👩‍💻 Author
+
+**Roya Nasiri**
+
+Frontend Developer
+
+* GitHub: https://github.com/Roya-Nasiri
+* LinkedIn: https://www.linkedin.com/in/roya-nasiri-81466123a
